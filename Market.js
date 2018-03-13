@@ -84,6 +84,10 @@ var errorCode = 0;
 //   }
 // });
 
+(function() {
+  store(true);
+});
+
 function products(offer) {
 
   switch(Number(offer.trim())) {
@@ -107,9 +111,10 @@ function products(offer) {
   }
 }
 
-function store(callback = "", customerName = "") {
+function store(callback = "", resetName = false) {
 
-  if(customerName.isEmpty()) {
+  if(resetName) {
+    //if(typeof callback == "function") callback();
 
     read.question("\nWhat is your name ? \t", name => {
 
@@ -123,6 +128,7 @@ function store(callback = "", customerName = "") {
       read.on('line', answer => {
         if(!isNaN(Number(answer)) && customer.checkedIn == false) {
           products(answer);
+          customer.checkedIn = true;
         } else {
           console.log(`Wrong input ${customer.name}, Please try again`);
         }
@@ -149,12 +155,18 @@ function store(callback = "", customerName = "") {
 
 read.on('close', () => {
 
+  let resetName = false;
+
   read.question(`\n${customer.name} Would you like a buy something else\n`, answer => {
     if(!isNaN(Number(answer)) && answer === 1) {
       customer.checkOutMessage = `\n${customer.name}, You have orderd ${customer.order} and your bill is $${customer.bill}\n`;
       read.setPrompt(customer.checkOutMessage);
       read.prompt();
       console.log(`\nCreating new Session for : ${customer.name}\n`);
+
+      store(function() {
+        customer.checkedIn = false;
+      }, resetName);
     } else {
       customer.checkOutMessage = `\n${customer.name}, You have orderd ${customer.order} and your bill is $${customer.bill}\n`;
       read.setPrompt(customer.checkOutMessage);
