@@ -19,6 +19,10 @@ var read = readline.createInterface(process.stdin, process.stdout);
 
 var errorCode = 0;
 
+var event = require('events').EventEmitter;
+
+var emitter = new event();
+
 // read.setPrompt(`What is your name ? > `);
 // read.prompt();
 //
@@ -84,8 +88,8 @@ var errorCode = 0;
 //   }
 // });
 
-(function() {
-  store(true);
+emitter.on('revisit', function() {
+  
 });
 
 function products(offer) {
@@ -111,10 +115,11 @@ function products(offer) {
   }
 }
 
-function store(callback = "", resetName = false) {
+function store(callback = "", resetName = "") {
 
-  if(resetName) {
-    //if(typeof callback == "function") callback();
+  if(Boolean(resetName) == false) {
+
+    if(typeof callback == "function") callback();
 
     read.question("\nWhat is your name ? \t", name => {
 
@@ -158,7 +163,7 @@ read.on('close', () => {
   let resetName = false;
 
   read.question(`\n${customer.name} Would you like a buy something else\n`, answer => {
-    if(!isNaN(Number(answer)) && answer === 1) {
+    if(!isNaN(Number(answer)) && answer == 1) {
       customer.checkOutMessage = `\n${customer.name}, You have orderd ${customer.order} and your bill is $${customer.bill}\n`;
       read.setPrompt(customer.checkOutMessage);
       read.prompt();
@@ -166,12 +171,18 @@ read.on('close', () => {
 
       store(function() {
         customer.checkedIn = false;
-      }, resetName);
+      }, true);
+
     } else {
       customer.checkOutMessage = `\n${customer.name}, You have orderd ${customer.order} and your bill is $${customer.bill}\n`;
       read.setPrompt(customer.checkOutMessage);
       read.prompt();
       process.exit();
     }
+
+    console.log(`you wrote ${answer}`)
+
   });
 });
+
+store(true);
